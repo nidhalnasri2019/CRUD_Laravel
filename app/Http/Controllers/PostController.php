@@ -37,7 +37,7 @@ class PostController extends Controller
 
    public function store(StorePostRequest $request){
        $post= $this->repository->store($request);
-      return  redirect()->route('posts.index');
+      return  redirect()->route('dashboard');
    }
 
   // show data of post to edit
@@ -84,6 +84,21 @@ class PostController extends Controller
      {
        $post= $this->repository->forcedelete($id);
        return redirect()->back();
+     }
+     
+      // show notification
+
+     public function showNotification($id)
+     {
+         $notif=$this->repository->showNotification($id);
+         return $notif;
+     }
+
+     // mark as read all notifications
+
+     public function markAsRead(){
+         $notifs= $this->repository->markAsRead();
+         return $notifs;
      }
     // public function showpost(){
        

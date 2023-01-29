@@ -15,6 +15,8 @@ interface IPostRepository
     public function destroy($id);
     public function restore($id);
     public function forcedelete($id);
+    public function showNotification($id);
+    public function markAsRead ();
   
 
 }

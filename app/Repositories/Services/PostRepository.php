@@ -3,6 +3,10 @@
 namespace App\Repositories\Services;
 
 use App\Models\Post;
+use App\Models\User;
+use App\Notifications\CreatePost;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use App\Repositories\Interfaces\IPostRepository;
 
 
@@ -42,10 +46,13 @@ class PostRepository implements IPostRepository
     //  ]);
 
     // create
-        Post::create([
+       $post= Post::create([
             'title'=>$request->title,
             'description'=>$request->description  //$request->all()
         ]);
+        $users= User::where('id','!=',auth()->user()->id)->get();
+        $byUser= auth()->user()->name;
+        Notification::send($users, new CreatePost($post->id,$byUser,$post->title));
    
 
     // new post
@@ -118,4 +125,24 @@ class PostRepository implements IPostRepository
         $post = Post::withTrashed()->where('id',$id)->forcedelete();
         return $post;
         }
+
+     // show notification   
+     
+    public function showNotification ($id){
+        $post=Post::findorFail($id);
+        $getID= DB::table('notifications')->where('data->post_id',$id)->pluck('id');
+        DB::table('notifications')->where('id',$getID)->update(['read_at'=>now()]);
+        return $post;
+    }    
+    // mark as read notifications
+
+    public function markAsRead (){
+
+        $user= User::find(auth()->user()->id);
+        foreach($user->unreadNotifications as $notification){
+         $notification->markAsRead();
+         //$notification->delete();
+        }
+        return redirect()->back();
+    }
 }
